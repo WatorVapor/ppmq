@@ -1,7 +1,7 @@
 const config = {
   listen:{
-    ctrl:8890,
-    data:8891
+    ctrl:8897,
+    data:8898
   },
   entrance:[
     {
@@ -18,7 +18,7 @@ const config = {
     },
   ],
   reps: {
-    path:'./node_data_1'
+    path:'./node_data_3'
   }
 };
 module.exports = config;

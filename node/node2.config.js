@@ -12,6 +12,10 @@ const config = {
       host:'::1',
       port:8895
     },
+    {
+      host:'::1',
+      port:8897
+    },
   ],
   reps: {
     path:'./node_data_2'

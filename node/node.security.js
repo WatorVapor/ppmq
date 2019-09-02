@@ -26,8 +26,10 @@ class NodeSecurity {
     console.log('NodeSecurity::constructor this.idB58=<',this.idB58,'>');
   }
   sign(msg) {
+    let now = new Date();
     msg.sign = {};
-    msg.sign.ts = new Date().toGMTString();
+    msg.sign.ts = now.toGMTString();
+    msg.sign.ms = now.getMilliseconds();
     msg.sign.pubKey = this.pubB58;
     
     let msgStr = JSON.stringify(msg);
@@ -47,6 +49,7 @@ class NodeSecurity {
   verify(msgJson) {
     const now = new Date();
     const msgTs = new Date(msgJson.sign.ts);
+    msgTs.setMilliseconds(msgJson.sign.ms)
     const escape_time = now -msgTs;
     //console.log('NodeSecurity::verify escape_time=<',escape_time,'>');
     if(escape_time > iConstMessageOutDateInMs) {
