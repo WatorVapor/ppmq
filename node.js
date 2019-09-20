@@ -108,17 +108,26 @@ class Node {
   };
 
   onMessageDataServer__(msg, rinfo) {
-    console.log('onMessageDataServer__ msg=<', msg.toString('utf-8'), '>');
-    console.log('onMessageDataServer__ rinfo=<', rinfo, '>');
+    //console.log('onMessageDataServer__ msg=<', msg.toString('utf-8'), '>');
+    //console.log('onMessageDataServer__ rinfo=<', rinfo, '>');
+    try {
       const msgJson = JSON.parse(msg.toString('utf-8'));
-      //console.log('onMessageCtrlServer__ msgJson=<',msgJson,'>');
-      //console.log('onMessageCtrlServer__ this.config=<',this.config,'>');
+      //console.log('onMessageDataServer__ msgJson=<',msgJson,'>');
+      //console.log('onMessageDataServer__ this.config=<',this.config,'>');
       const good = this.security.verify(msgJson);
-      //console.log('onMessageCtrlServer__ good=<',good,'>');
+      //console.log('onMessageDataServer__ good=<',good,'>');
       if (!good) {
-        console.log('onMessageCtrlServer__ msgJson=<', msgJson, '>');
+        console.log('onMessageDataServer__ msgJson=<', msgJson, '>');
         return;
       }
+      const rPeerId = this.security.calcID(msgJson);
+      //console.log('onMessageDataServer__ rPeerId=<',rPeerId,'>');
+      if(msgJson.topic && msgJson.data) {
+        this.onRemoteDataMsg__(msgJson.topic,msgJson.data);
+      }
+    } catch(e) {
+      console.log('onMessageDataServer__ e=<',e,'>');
+    }
   };
 
 
@@ -209,6 +218,9 @@ class Node {
     //console.log('onSubscribe__ subscribe=<',subscribe,'>');
     if(!this.subscribers[subscribe.address]) {
       this.subscribers[subscribe.address] = {};
+      this.subscribers[subscribe.address][rPeer] = {};
+    }
+    if(!this.subscribers[subscribe.address][rPeer]) {
       this.subscribers[subscribe.address][rPeer] = {};
     }
     this.subscribers[subscribe.address][rPeer][subscribe.topic] = true;
@@ -351,7 +363,7 @@ class Node {
   loop2Me__(topicAddress,msg) {
     if (this.handlers[topicAddress]) {
       for (let handler of this.handlers[topicAddress]) {
-        console.log('publish handler=<', handler, '>');
+        console.log('loop2Me__ handler=<', handler, '>');
         if (typeof handler.cb === 'function') {
           handler.cb(handler.topic, msg);
         }
@@ -371,7 +383,8 @@ class Node {
         console.log('out2RemoteDirect__ rPeer=<',rPeer,'>');
         if(rPeer.ttr < 1000) {
           let msgObj = {
-            data: msg
+            data: msg,
+            topic:topicAddress
           };
           let msgSign = this.security.sign(msgObj);
           const bufMsg = Buffer.from(JSON.stringify(msgSign));
@@ -381,8 +394,14 @@ class Node {
         }
       }
     } catch(e) {
-      console.log('out2RemoteDirect__ e=<',e,'>');
+      //console.log('out2RemoteDirect__ e=<',e,'>');
     }
+  }
+  onRemoteDataMsg__(topicAddress,msg) {
+    //console.log('onRemoteDataMsg__ topicAddress=<',topicAddress,'>');
+    //console.log('onRemoteDataMsg__ msg=<',msg,'>');
+    //console.log('onRemoteDataMsg__ this.handlers=<',this.handlers,'>');
+    this.loop2Me__(topicAddress,msg);
   }
 
 }

@@ -5,9 +5,7 @@ console.log(':: config=<',config,'>');
 const PPMQ = require('../ppmq.js');
 const ppmq = new PPMQ(config);
 const topic = 'hello';
-ppmq.subscribe(topic,(topic,msg) => {
-  onMsg(topic,msg);
-});
+ppmq.subscribe(topic);
 
 const onMsg = (topic,msg) => {
   console.log('onMsg topic=<',topic,'>');
@@ -20,3 +18,6 @@ ppmq.once('ready',(evt)=> {
   ppmq.publish(topic,'good morning!!',true);
 });
 
+ppmq.on('message',(topic,msg)=> {
+  onMsg(topic,msg);
+});

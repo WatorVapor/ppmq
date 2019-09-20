@@ -8,8 +8,8 @@ class PPMQ extends EventEmitter {
     this.node_ = new Node(config);
     this.node_.onReady = this.onReady_.bind(this);
   }
-  subscribe(topic,handler) {
-    this.node_.subscribe(topic,handler);
+  subscribe(topic) {
+    this.node_.subscribe(topic,this.onMessage_.bind(this));
   }
   publish(topic,msg,toMe) {
     this.node_.publish(topic,msg,toMe);
@@ -18,8 +18,11 @@ class PPMQ extends EventEmitter {
     //console.log('PPMQ this.emit=<',this.emit,'>');
     this.emit('ready');
   }
+  onMessage_(topic,message) {
+    console.log('PPMQ onMessage_:topic=<',topic,'>');
+    console.log('PPMQ onMessage_:message=<',message,'>');
+    this.emit('message',topic,message);
+  }
 }
 
 module.exports = PPMQ;
-
-
